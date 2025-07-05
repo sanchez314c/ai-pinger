@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;overflow:hidden;background:transparent;">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://openrouter.ai https://*.openrouter.ai"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>AI Pinger</title>
+  </head>
+  <body style="height:100%;overflow:hidden;background:transparent;padding:16px;margin:0;box-sizing:border-box;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;color:#e8e8ec;">
+    <div id="root" style="height:100%;width:100%;overflow:hidden;"></div>
+    <script type="module" src="./src/renderer/main.tsx"></script>
+  </body>
+</html>

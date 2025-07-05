@@ -1,0 +1,127 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import type { ModelResponse } from '../../shared/types';
+
+export function generateHtmlReport(
+  outputPath: string,
+  prompt: string,
+  responses: ModelResponse[]
+): void {
+  // Try to load template
+  let template: string;
+  const templatePath = path.join(process.cwd(), 'templates', 'report_template.html');
+
+  try {
+    template = fs.readFileSync(templatePath, 'utf-8');
+  } catch {
+    // Fallback inline template
+    template = getDefaultTemplate();
+  }
+
+  // Generate model sections
+  const modelSections = responses
+    .map((r) => {
+      const errorHtml = r.error
+        ? `<div class="error-message">Error: ${escapeHtml(r.error)}</div>`
+        : '';
+
+      return `
+        <div class="model-section">
+          <div class="model-header">
+            <h3>${escapeHtml(r.modelName)}</h3>
+            <div class="model-details">
+              <span>Provider: ${escapeHtml(r.provider)}</span>
+              <span>ID: ${escapeHtml(r.modelId)}</span>
+              <span>Response Time: ${r.responseTime.toFixed(2)}s</span>
+            </div>
+          </div>
+          <div class="message-container">
+            <div class="message user-message">
+              <div class="message-icon">&#128100;</div>
+              <div class="message-content">${escapeHtml(prompt)}</div>
+            </div>
+            <div class="message ai-message">
+              <div class="message-icon">&#129302;</div>
+              <div class="message-content">${escapeHtml(r.content || 'No response')}</div>
+            </div>
+            ${errorHtml}
+          </div>
+        </div>`;
+    })
+    .join('\n');
+
+  const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
+
+  let html = template;
+  html = html.replace(/\{\{PROMPT\}\}/g, escapeHtml(prompt));
+  html = html.replace(/\{\{MODEL_SECTIONS\}\}/g, modelSections);
+  html = html.replace(/\{\{TIMESTAMP\}\}/g, timestamp);
+  html = html.replace(/\{\{MODEL_COUNT\}\}/g, String(responses.length));
+
+  fs.writeFileSync(outputPath, html, 'utf-8');
+}
+
+export function generateJsonReport(
+  outputPath: string,
+  prompt: string,
+  responses: ModelResponse[]
+): void {
+  const report = {
+    prompt,
+    timestamp: new Date().toISOString(),
+    modelCount: responses.length,
+    responses,
+  };
+  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2), 'utf-8');
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function getDefaultTemplate(): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Pinger Report - {{TIMESTAMP}}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;line-height:1.6;color:#e2e8f0;background:#1a1b22}
+.container{max-width:1200px;margin:0 auto;padding:2rem}
+.report-header{margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid #2d3748}
+.report-header h1{color:#fff;margin-bottom:.5rem}
+.report-meta{color:#a0aec0;font-size:.9rem}
+.prompt-section{margin-bottom:2rem;padding:1rem;background:#232432;border-radius:8px;border:1px solid #2d3748}
+.prompt-section h2{margin-bottom:1rem;color:#fff}
+.prompt-box{padding:1rem;background:#1a1b22;border-radius:6px;border:1px solid #2d3748;white-space:pre-wrap;word-break:break-word}
+.model-section{margin-bottom:2rem;padding:1rem;background:#232432;border-radius:8px;border:1px solid #2d3748}
+.model-header{margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #2d3748}
+.model-header h3{color:#fff;font-size:1.25rem}
+.model-details{margin-top:.5rem;font-size:.875rem;color:#a0aec0;display:flex;flex-wrap:wrap;gap:1rem}
+.message-container{display:flex;flex-direction:column;gap:1rem}
+.message{display:flex;padding:1rem;border-radius:6px}
+.user-message{background:#1e1f29}
+.ai-message{background:#1a1b22}
+.message-icon{flex-shrink:0;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:.75rem;font-size:1.125rem}
+.message-content{flex:1;white-space:pre-wrap;word-break:break-word}
+.error-message{color:#f87171;padding:.5rem 1rem;margin-top:.5rem;background:rgba(239,68,68,.1);border-radius:6px;border-left:3px solid #ef4444}
+footer{text-align:center;padding-top:1rem;margin-top:2rem;border-top:1px solid #2d3748;color:#a0aec0;font-size:.875rem}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="report-header"><h1>AI Pinger Comparison Report</h1><div class="report-meta">Generated: {{TIMESTAMP}} | Models Tested: {{MODEL_COUNT}}</div></div>
+<div class="prompt-section"><h2>Test Prompt</h2><div class="prompt-box">{{PROMPT}}</div></div>
+<div class="results-container"><h2>Model Responses</h2>{{MODEL_SECTIONS}}</div>
+<footer>Generated by AI Pinger v1.0.0 — Compare AI models side-by-side</footer>
+</div>
+</body>
+</html>`;
+}

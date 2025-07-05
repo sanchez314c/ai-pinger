@@ -1,0 +1,98 @@
+# Build and Distribution
+/out/
+/dist/
+/build/
+/release/
+/.vite/
+
+# Node.js
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# Python Virtual Environments (legacy)
+/venv/
+/env/
+/.venv/
+
+# Backup Files
+*.backup.*
+*.bak
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing and Coverage
+/coverage/
+/.nyc_output/
+*.lcov
+
+# Build Artifacts
+*.tgz
+*.tar.gz
+*.zip
+*.dmg
+*.pkg
+*.msi
+*.exe
+*.deb
+*.rpm
+*.snap
+*.AppImage
+
+# OS and System Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sw?
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Lock Files
+*.pid
+*.seed
+*.pid.lock
+
+# Cache
+.cache
+.parcel-cache
+.eslintcache
+
+# Legacy & Archive
+/legacy/
+/archive/
+
+# AI Pinger Specific
+ai_pinger_report_*.html
+ai_pinger_responses_*.json
+
+# Local Configuration
+config/local.*
+config/settings.json
+
+# Electron Packager
+/packaged/
+
+# PyInstaller (legacy)
+*.spec
+/__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Logs
+*.log
+
+# Legacy code
+legacy/
